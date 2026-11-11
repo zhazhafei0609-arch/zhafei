@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="动物叠叠乐图标">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff7e8"/>
+      <stop offset="1" stop-color="#d9f3e8"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffefb"/>
+      <stop offset="1" stop-color="#f2ddbd"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="100" y="140" width="250" height="250" rx="48" fill="#e8caa1" transform="rotate(-13 225 265)"/>
+  <rect x="174" y="128" width="250" height="250" rx="48" fill="#f2ddbd" transform="rotate(12 299 253)"/>
+  <rect x="126" y="118" width="270" height="280" rx="50" fill="#cbb087" transform="translate(0 9)"/>
+  <rect x="126" y="112" width="270" height="280" rx="50" fill="url(#tile)" stroke="#fff" stroke-width="8"/>
+  <circle cx="190" cy="188" r="38" fill="#3d434c"/>
+  <circle cx="332" cy="188" r="38" fill="#3d434c"/>
+  <circle cx="261" cy="266" r="114" fill="#fff" stroke="#efe5d3" stroke-width="6"/>
+  <ellipse cx="211" cy="253" rx="34" ry="48" fill="#3d434c" transform="rotate(24 211 253)"/>
+  <ellipse cx="311" cy="253" rx="34" ry="48" fill="#3d434c" transform="rotate(-24 311 253)"/>
+  <circle cx="220" cy="264" r="9" fill="#fff"/>
+  <circle cx="302" cy="264" r="9" fill="#fff"/>
+  <ellipse cx="261" cy="315" rx="25" ry="18" fill="#363a42"/>
+  <path d="M238 337 Q261 359 284 337" fill="none" stroke="#363a42" stroke-width="8" stroke-linecap="round"/>
+</svg>

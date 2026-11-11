@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="动物叠叠乐：点击层叠的小动物，把三个相同图案放进小窝并消除。"
+    />
+    <title>动物叠叠乐 · Animal Stack</title>
+    <meta name="theme-color" content="#ed7658" />
+    <meta name="application-name" content="动物叠叠乐" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="动物叠叠乐" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="动物叠叠乐 · Animal Stack" />
+    <meta property="og:description" content="点击层叠的小动物，凑齐三个相同图案，把所有小动物送回家。" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient-light ambient-light-a" aria-hidden="true"></div>
+    <div class="ambient-light ambient-light-b" aria-hidden="true"></div>
+    <div class="floating-animal animal-one" aria-hidden="true">🐼</div>
+    <div class="floating-animal animal-two" aria-hidden="true">🦊</div>
+    <div class="floating-animal animal-three" aria-hidden="true">🐰</div>
+
+    <main class="app-shell" id="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="动物叠叠乐 Animal Stack">
+          <span class="brand-mark" aria-hidden="true">
+            <i>🐼</i>
+            <i>🐰</i>
+            <i>🦊</i>
+          </span>
+          <span class="brand-copy">
+            <strong>ANIMAL STACK</strong>
+            <small>动物叠叠乐 <span>🐾</span></small>
+          </span>
+        </div>
+        <div class="header-actions">
+          <button class="icon-button" id="sound-button" type="button" aria-pressed="true">
+            <span aria-hidden="true">♫</span>
+            <b id="sound-label">声音开</b>
+          </button>
+          <button class="icon-button" id="pause-button" type="button" disabled>
+            <span aria-hidden="true">Ⅱ</span>
+            <b>暂停</b>
+          </button>
+        </div>
+      </header>
+
+      <section class="game-card" aria-label="动物叠叠乐游戏区域">
+        <div class="hud" aria-live="polite">
+          <div class="hud-chip level-chip">
+            <span class="hud-label">关卡</span>
+            <strong id="level-value">1 / 2</strong>
+          </div>
+          <div class="hud-progress">
+            <div class="hud-row">
+              <span class="hud-label">已消除</span>
+              <strong id="progress-value">0 / 72</strong>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <span id="progress-bar"></span>
+            </div>
+          </div>
+          <div class="hud-chip time-chip">
+            <span class="hud-label">用时</span>
+            <strong id="timer-value">00:00</strong>
+          </div>
+          <div class="score-block">
+            <span class="hud-label">得分</span>
+            <strong id="score-value">000000</strong>
+            <small>BEST <b id="best-value">000000</b></small>
+          </div>
+        </div>
+
+        <div class="game-stage">
+          <div class="stage-topline">
+            <div class="level-copy">
+              <span class="level-kicker" id="level-kicker">MEADOW 01</span>
+              <strong id="level-name">熊猫竹林</strong>
+              <small id="level-subtitle">雨后的小动物们叠成了一座软乎乎的小山。</small>
+            </div>
+            <div class="combo-badge" id="combo-badge" hidden>
+              连续配对 <b id="combo-value">×1</b>
+            </div>
+          </div>
+
+          <div class="board-area">
+            <div class="board-glow" aria-hidden="true"></div>
+            <div
+              class="game-board"
+              id="game-board"
+              role="group"
+              aria-label="层叠小动物棋盘，请点击没有被遮住的小动物"
+            ></div>
+            <div class="effects-layer" id="effects-layer" aria-hidden="true"></div>
+          </div>
+
+          <section class="tray-panel" aria-label="动物小窝">
+            <div class="tray-heading">
+              <span>动物小窝</span>
+              <small>三只相同的小动物会自动回到家里</small>
+              <strong id="tray-count">0 / 7</strong>
+            </div>
+            <div class="tray" id="tray"></div>
+          </section>
+
+          <div class="tools-row" aria-label="道具">
+            <button class="tool-button" id="undo-button" data-tool="undo" type="button" disabled>
+              <span class="tool-icon" aria-hidden="true">↶</span>
+              <span><b>撤销</b><small>放回上一只</small></span>
+              <em id="undo-count">×2</em>
+            </button>
+            <button class="tool-button" id="shuffle-button" data-tool="shuffle" type="button" disabled>
+              <span class="tool-icon" aria-hidden="true">⤨</span>
+              <span><b>洗牌</b><small>换个排列方式</small></span>
+              <em id="shuffle-count">×2</em>
+            </button>
+            <button class="tool-button" id="hint-button" data-tool="hint" type="button" disabled>
+              <span class="tool-icon" aria-hidden="true">⌁</span>
+              <span><b>提示</b><small>找一组能配对的</small></span>
+              <em id="hint-count">×3</em>
+            </button>
+          </div>
+
+          <div class="announcement" id="announcement" aria-live="polite"></div>
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+          <div class="overlay" id="overlay">
+            <section class="screen is-active" data-screen="start">
+              <div class="screen-panel start-panel">
+                <p class="eyebrow">COZY MATCH · CUTE ANIMALS</p>
+                <h1>把毛茸茸的小动物<br /><span>叠成一座小山</span></h1>
+                <p class="screen-copy">
+                  点击没有被压住的小动物。它们会跑进下方小窝，三个相同图案会自动消失。小窝只有 7 格，别让小动物们挤成一团。
+                </p>
+                <div class="tutorial-grid">
+                  <div class="tutorial-step">
+                    <span>01</span>
+                    <b>找到小动物</b>
+                    <small>只能点击最上层、没有被遮挡的那一只。</small>
+                  </div>
+                  <div class="tutorial-step">
+                    <span>02</span>
+                    <b>凑齐三只</b>
+                    <small>相同的小动物会自动靠近并一起回家。</small>
+                  </div>
+                  <div class="tutorial-step">
+                    <span>03</span>
+                    <b>清空小山</b>
+                    <small>在小窝挤满之前，把所有小动物送回去。</small>
+                  </div>
+                </div>
+                <div class="sample-tiles" aria-label="三个相同动物配对示例">
+                  <span class="sample-tile">🐼</span>
+                  <span class="sample-tile">🐰</span>
+                  <span class="sample-tile">🦊</span>
+                  <span class="sample-arrow">→</span>
+                  <span class="sample-tile">🐼</span>
+                  <span class="sample-tile">🐼</span>
+                  <span class="sample-clear">一起回家</span>
+                </div>
+                <button class="primary-button action-button" data-action="start" type="button">
+                  开始叠叠乐 <span aria-hidden="true">↗</span>
+                </button>
+                <p class="micro-copy" id="run-meta">2 关 · 约 5–10 分钟 · 支持撤销、洗牌与提示</p>
+              </div>
+            </section>
+
+            <section class="screen" data-screen="paused">
+              <div class="screen-panel compact-panel pause-panel">
+                <p class="eyebrow">COZY BREAK</p>
+                <h2>小动物们休息一下</h2>
+                <p class="screen-copy">棋盘会安静地等你回来，准备好后继续把它们送回小窝。</p>
+                <div class="button-row">
+                  <button class="primary-button action-button" data-action="resume" type="button">继续游戏</button>
+                  <button class="ghost-button action-button" data-action="restart" type="button">重新开始</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="screen" data-screen="levelClear">
+              <div class="screen-panel compact-panel result-panel">
+                <p class="eyebrow success-text">ALL ANIMALS HOME</p>
+                <h2 id="clear-title">小动物们都回家啦</h2>
+                <p class="screen-copy" id="clear-copy">这一片草地已经收拾整齐，下一群小动物正在等你。</p>
+                <div class="stat-grid">
+                  <div><span>送回小窝</span><strong id="clear-matched">72 / 72</strong></div>
+                  <div><span>本关用时</span><strong id="clear-time">00:00</strong></div>
+                  <div><span>当前得分</span><strong id="clear-score">0</strong></div>
+                </div>
+                <button class="primary-button action-button" data-action="continue" type="button">
+                  继续闯关 <span aria-hidden="true">→</span>
+                </button>
+                <button class="text-button action-button" data-action="restart" type="button">从第一关重新开始</button>
+              </div>
+            </section>
+
+            <section class="screen" data-screen="gameOver">
+              <div class="screen-panel compact-panel danger-panel">
+                <p class="eyebrow danger-text">THE NEST IS FULL</p>
+                <h2>小窝挤满啦</h2>
+                <p class="screen-copy" id="gameover-copy">没有空位，也没有凑出三只相同的小动物。可以先放回最后一只继续。</p>
+                <div class="stat-grid">
+                  <div><span>当前得分</span><strong id="gameover-score">0</strong></div>
+                  <div><span>送回进度</span><strong id="gameover-progress">0 / 72</strong></div>
+                  <div><span>最高记录</span><strong id="gameover-best">0</strong></div>
+                </div>
+                <button class="primary-button action-button" id="rescue-button" data-action="undo-rescue" type="button">
+                  放回一只继续 <span aria-hidden="true">↶</span>
+                </button>
+                <button class="ghost-button action-button wide-button" data-action="retry" type="button">重试本关</button>
+                <button class="text-button action-button" data-action="restart" type="button">从第一关重新开始</button>
+              </div>
+            </section>
+
+            <section class="screen" data-screen="victory">
+              <div class="screen-panel compact-panel victory-panel">
+                <p class="eyebrow success-text">EVERY ANIMAL IS HOME</p>
+                <h2>所有小动物都回家啦</h2>
+                <p class="screen-copy">两片草地重新安静下来，小窝里传来了呼噜声。</p>
+                <div class="victory-score">
+                  <span>FINAL SCORE</span>
+                  <strong id="victory-score">000000</strong>
+                  <small>最高记录 <b id="victory-best">000000</b></small>
+                </div>
+                <button class="primary-button action-button" data-action="restart" type="button">
+                  再玩一次 <span aria-hidden="true">↻</span>
+                </button>
+                <button class="text-button action-button" data-action="title" type="button">返回开始界面</button>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="game-footer">
+          <span><i class="footer-paw">🐾</i> 点击最上层的小动物</span>
+          <span>小窝 7 格 · 三只相同图案自动消除</span>
+          <span>P / ESC 暂停</span>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <span id="run-summary">2 MEADOWS · 183 ANIMALS · ONE RUN</span>
+        <span>SOFT TILES &amp; CUTE FRIENDS ↗</span>
+      </footer>
+    </main>
+
+    <script src="js/levels.js" defer></script>
+    <script src="js/board.js" defer></script>
+    <script src="js/audio.js" defer></script>
+    <script src="js/game.js" defer></script>
+    <script src="js/ui.js" defer></script>
+    <script src="js/main.js" defer></script>
+  </body>
+</html>

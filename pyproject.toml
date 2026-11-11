@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-starter"
+version = "0.1.0"
+description = "A minimal, modern Python starter project."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Your Name" },
+]
+dependencies = []
+
+[project.scripts]
+python-starter = "python_starter.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
