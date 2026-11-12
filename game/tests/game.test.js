@@ -75,3 +75,23 @@ test("a full tray can be rescued with one undo", async (t) => {
   assert.equal(game.status, "playing");
   assert.equal(game.tray.length, game.level.traySize - 1);
 });
+
+test("infinite catalog stays in level-clear mode and shows praise", (t) => {
+  const game = new StarStackGame(catalog);
+  t.after(() => game.destroy());
+  game.startRun();
+  game.loadLevel(2);
+  game.matchedCount = game.level.totalTiles;
+  game.completeLevel();
+
+  assert.equal(game.status, "levelClear");
+  assert.equal(game.isInfinite, true);
+  assert.equal(game.totalLevels, Infinity);
+  assert.ok(game.lastPraise.length > 0);
+  assert.equal(game.snapshot().praise, game.lastPraise);
+
+  game.continueRun();
+  assert.equal(game.status, "playing");
+  assert.equal(game.levelIndex, 3);
+  assert.ok(game.level.name.length > 0);
+});

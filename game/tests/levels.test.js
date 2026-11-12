@@ -101,3 +101,20 @@ test("fallback layer counts always fit reduced board sizes", () => {
     assert.equal(boardEngine.verifySolution(level, board), true);
   }
 });
+
+test("infinite levels keep generating solvable, increasingly larger boards", () => {
+  assert.equal(catalog.infinite, true);
+  assert.ok(catalog.praiseMessages.length >= 10);
+  let previousTiles = 0;
+  for (const index of [2, 3, 6, 12, 30]) {
+    const level = catalog.getLevel(index);
+    assert.ok(level);
+    assert.ok(level.id.startsWith("endless-meadow-"));
+    assert.equal(level.totalTiles % 3, 0);
+    assert.ok(level.totalTiles >= previousTiles);
+    assert.ok(level.totalTiles <= 156);
+    const board = boardEngine.generateBoard(level);
+    assert.equal(boardEngine.verifySolution(level, board), true);
+    previousTiles = level.totalTiles;
+  }
+});

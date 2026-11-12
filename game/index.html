@@ -57,7 +57,7 @@
         <div class="hud" aria-live="polite">
           <div class="hud-chip level-chip">
             <span class="hud-label">关卡</span>
-            <strong id="level-value">1 / 2</strong>
+            <strong id="level-value">1 / ∞</strong>
           </div>
           <div class="hud-progress">
             <div class="hud-row">
@@ -135,10 +135,10 @@
           <div class="overlay" id="overlay">
             <section class="screen is-active" data-screen="start">
               <div class="screen-panel start-panel">
-                <p class="eyebrow">COZY MATCH · CUTE ANIMALS</p>
+                <p class="eyebrow">COZY MATCH · ENDLESS ANIMALS</p>
                 <h1>把毛茸茸的小动物<br /><span>叠成一座小山</span></h1>
                 <p class="screen-copy">
-                  点击没有被压住的小动物。它们会跑进下方小窝，三个相同图案会自动消失。小窝只有 7 格，别让小动物们挤成一团。
+                  点击没有被压住的小动物。三个相同图案会自动消失，小窝只有 7 格。每一关会越来越热闹，通关后还会继续下一片草地。
                 </p>
                 <div class="tutorial-grid">
                   <div class="tutorial-step">
@@ -153,8 +153,8 @@
                   </div>
                   <div class="tutorial-step">
                     <span>03</span>
-                    <b>清空小山</b>
-                    <small>在小窝挤满之前，把所有小动物送回去。</small>
+                    <b>继续下一关</b>
+                    <small>每清理一片草地，都会解锁更热闹的新关卡。</small>
                   </div>
                 </div>
                 <div class="sample-tiles" aria-label="三个相同动物配对示例">
@@ -169,7 +169,7 @@
                 <button class="primary-button action-button" data-action="start" type="button">
                   开始叠叠乐 <span aria-hidden="true">↗</span>
                 </button>
-                <p class="micro-copy" id="run-meta">2 关 · 约 5–10 分钟 · 支持撤销、洗牌与提示</p>
+                <p class="micro-copy" id="run-meta">无限关卡 · 每关约 2–5 分钟 · 通关后继续下一片草地</p>
               </div>
             </section>
 
@@ -190,15 +190,19 @@
                 <p class="eyebrow success-text">ALL ANIMALS HOME</p>
                 <h2 id="clear-title">小动物们都回家啦</h2>
                 <p class="screen-copy" id="clear-copy">这一片草地已经收拾整齐，下一群小动物正在等你。</p>
+                <div class="praise-card" id="clear-praise-card" role="status">
+                  <span aria-hidden="true">🌟</span>
+                  <p id="clear-praise">太棒啦！小动物们都回到温暖的小窝。</p>
+                </div>
                 <div class="stat-grid">
                   <div><span>送回小窝</span><strong id="clear-matched">72 / 72</strong></div>
                   <div><span>本关用时</span><strong id="clear-time">00:00</strong></div>
                   <div><span>当前得分</span><strong id="clear-score">0</strong></div>
                 </div>
-                <button class="primary-button action-button" data-action="continue" type="button">
-                  继续闯关 <span aria-hidden="true">→</span>
+                <button class="primary-button action-button" id="continue-button" data-action="continue" type="button">
+                  继续下一关 <span aria-hidden="true">→</span>
                 </button>
-                <button class="text-button action-button" data-action="restart" type="button">从第一关重新开始</button>
+                <button class="text-button action-button" data-action="title" type="button">结束本局并返回首页</button>
               </div>
             </section>
 
@@ -224,7 +228,7 @@
               <div class="screen-panel compact-panel victory-panel">
                 <p class="eyebrow success-text">EVERY ANIMAL IS HOME</p>
                 <h2>所有小动物都回家啦</h2>
-                <p class="screen-copy">两片草地重新安静下来，小窝里传来了呼噜声。</p>
+                <p class="screen-copy">所有草地重新安静下来，小窝里传来了呼噜声。</p>
                 <div class="victory-score">
                   <span>FINAL SCORE</span>
                   <strong id="victory-score">000000</strong>
@@ -247,7 +251,7 @@
       </section>
 
       <footer class="page-footer">
-        <span id="run-summary">2 MEADOWS · 183 ANIMALS · ONE RUN</span>
+        <span id="run-summary">∞ MEADOWS · KEEP EVERYONE COZY</span>
         <span>SOFT TILES &amp; CUTE FRIENDS ↗</span>
       </footer>
     </main>

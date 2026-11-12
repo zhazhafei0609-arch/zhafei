@@ -42,7 +42,7 @@
       }
 
       const audio = new global.StarStackAudio();
-      const game = new global.StarStackGame(levels.list, { audio });
+      const game = new global.StarStackGame(levels, { audio });
       const ui = new global.StarStackUI(game, audio, { errors: levels.errors });
       ui.init();
       global.starStack = { game, ui, audio, levels };

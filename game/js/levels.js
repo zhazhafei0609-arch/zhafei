@@ -74,6 +74,46 @@
     },
   ];
 
+  const INFINITE_LEVEL_NAMES = [
+    "云朵牧场",
+    "草莓山谷",
+    "彩虹森林",
+    "月光花园",
+    "向日葵田野",
+    "棉花糖丘陵",
+    "萤火虫草地",
+    "蘑菇小屋",
+    "樱花溪谷",
+    "星星露营地",
+    "柠檬果园",
+    "薄荷湖畔",
+  ];
+
+  const INFINITE_SUBTITLES = [
+    "更多小动物闻着青草香跑了过来，它们又叠成了一座新的小山。",
+    "带露珠的草地上藏着新的呼噜声，慢慢把它们都送回家吧。",
+    "云朵把阳光切成小块，小动物们正躲在下面等待配对。",
+    "这一片草地比上一片更深、更热闹，也藏着更多惊喜。",
+    "风吹过花丛，毛茸茸的小伙伴们不知不觉又叠高了。",
+  ];
+
+  const PRAISE_MESSAGES = [
+    "太棒啦！小动物们都回到温暖的小窝。",
+    "漂亮！你的眼睛比猫头鹰还要敏锐。",
+    "真厉害！熊猫为你鼓掌，兔子为你比心。",
+    "做得好！这片草地被你整理得闪闪发光。",
+    "优秀！你的观察力连小狐狸都佩服。",
+    "完美！小动物们已经舒服地睡着啦。",
+    "太可靠了！你是小窝的超级管理员。",
+    "干得漂亮！毛茸茸的烦恼都被消除啦。",
+    "厉害！下一片草地的动物也在等你。",
+    "满分！连路过的小鸟都在为你加油。",
+    "太优秀啦！小动物们把你当成好朋友。",
+    "不可思议！整座动物山都变成小呼噜。",
+  ];
+
+  const infiniteLevelCache = new Map();
+
   const COLOR_PATTERN = /^(#[\da-f]{3,8}|(?:rgb|hsl)a?\([\d\s.,%+\-]+\))$/i;
   const ID_PATTERN = /[^a-z0-9_-]+/g;
 
@@ -313,6 +353,34 @@
     });
   }
 
+  function generateInfiniteLevel(index) {
+    if (!Number.isInteger(index) || index < 0) return null;
+    if (index < catalog.list.length) return catalog.list[index];
+    if (infiniteLevelCache.has(index)) return infiniteLevelCache.get(index);
+
+    const tileCount = Math.min(156, 78 + index * 3);
+    const layerCount = Math.min(6, 4 + Math.floor((index - 2) / 3));
+    const kindCount = Math.min(TILE_LIBRARY.length, 8 + Math.floor((index - 2) / 4));
+    const rawLevel = {
+      id: `endless-meadow-${index + 1}`,
+      name: INFINITE_LEVEL_NAMES[(index - catalog.list.length) % INFINITE_LEVEL_NAMES.length],
+      subtitle: `第 ${index + 1} 片草地：${INFINITE_SUBTITLES[index % INFINITE_SUBTITLES.length]}`,
+      columns: 7,
+      rows: 7,
+      tileCount,
+      layers: layerCount,
+      kindCount,
+      traySize: 7,
+      seed: 9109 + index * 7919,
+      tools: { undo: 2, shuffle: 2, hint: 3 },
+      theme: index % 2 === 0 ? THEMES.garden : THEMES.meadow,
+    };
+    const generated = buildCatalog([rawLevel]);
+    const level = generated.list[0];
+    infiniteLevelCache.set(index, level);
+    return level;
+  }
+
   const catalog = buildCatalog(RAW_LEVELS);
   global.StarStackLevels = Object.freeze({
     list: catalog.list,
@@ -320,5 +388,8 @@
     defaults: catalog.defaults,
     tileLibrary: Object.freeze(TILE_LIBRARY.map((kind) => Object.freeze({ ...kind }))),
     createCatalog: buildCatalog,
+    getLevel: generateInfiniteLevel,
+    infinite: true,
+    praiseMessages: Object.freeze(PRAISE_MESSAGES.slice()),
   });
 })(typeof window !== "undefined" ? window : globalThis);

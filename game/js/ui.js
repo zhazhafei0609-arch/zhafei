@@ -47,6 +47,9 @@
         toast: byId("toast"),
         clearTitle: byId("clear-title"),
         clearCopy: byId("clear-copy"),
+        clearPraiseCard: byId("clear-praise-card"),
+        clearPraise: byId("clear-praise"),
+        continueButton: byId("continue-button"),
         clearMatched: byId("clear-matched"),
         clearTime: byId("clear-time"),
         clearScore: byId("clear-score"),
@@ -76,6 +79,11 @@
 
 
     updateRunSummary() {
+      if (this.game.isInfinite) {
+        this.elements.runMeta.textContent = "无限关卡 · 每关约 2–5 分钟 · 通关后继续下一片草地";
+        this.elements.runSummary.textContent = "∞ MEADOWS · KEEP EVERYONE COZY";
+        return;
+      }
       const levels = this.game.levels;
       const tileTotal = levels.reduce((sum, level) => sum + level.totalTiles, 0);
       const minMinutes = Math.max(5, Math.round(levels.length * 2.5));
@@ -169,7 +177,8 @@
       this.tileElements.clear();
       this.elements.board.replaceChildren();
       this.applyTheme(detail.level.theme);
-      this.elements.levelKicker.textContent = `MEADOW ${String(detail.levelIndex + 1).padStart(2, "0")} / ${String(detail.totalLevels).padStart(2, "0")}`;
+      const totalLabel = detail.isInfinite ? "∞" : String(detail.totalLevels).padStart(2, "0");
+      this.elements.levelKicker.textContent = `MEADOW ${String(detail.levelIndex + 1).padStart(2, "0")} / ${totalLabel}`;
       this.elements.levelName.textContent = detail.level.name;
       this.elements.levelSubtitle.textContent = detail.level.subtitle;
       this.showAnnouncement(`${detail.level.name} · ${detail.level.totalTiles} 只小动物`);
@@ -330,9 +339,9 @@
     }
 
     updateHud(state) {
-      const total = Math.max(1, state.totalLevels);
+      const totalLabel = state.isInfinite ? "∞" : String(Math.max(1, state.totalLevels));
       const progress = state.totalTiles > 0 ? state.matchedCount / state.totalTiles : 0;
-      this.elements.levelValue.textContent = `${state.levelIndex + 1} / ${total}`;
+      this.elements.levelValue.textContent = `${state.levelIndex + 1} / ${totalLabel}`;
       this.elements.progressValue.textContent = `${state.matchedCount} / ${state.totalTiles}`;
       this.elements.progressBar.style.width = `${Math.min(100, progress * 100)}%`;
       this.elements.timerValue.textContent = this.formatTime(state.elapsed);
@@ -387,8 +396,17 @@
         const stats = state.lastLevelStats || {};
         this.elements.clearTitle.textContent = `${state.levelName} 已完成`;
         this.elements.clearCopy.textContent = state.nextLevel
-          ? `下一片草地「${state.nextLevel.name}」正在展开，所有道具会重新补充。`
+          ? (state.isInfinite
+            ? `下一片草地「${state.nextLevel.name}」正在展开，难度会继续慢慢提高。`
+            : `下一片草地「${state.nextLevel.name}」正在展开，所有道具会重新补充。`)
           : "所有小动物都已经回家了。";
+        this.elements.clearPraise.textContent = state.praise || stats.praise || "太棒了！所有小动物都回家啦。";
+        this.elements.clearPraiseCard.classList.remove("is-popping");
+        void this.elements.clearPraiseCard.offsetWidth;
+        this.elements.clearPraiseCard.classList.add("is-popping");
+        this.elements.continueButton.innerHTML = state.nextLevel
+          ? '继续下一关 <span aria-hidden="true">→</span>'
+          : '继续 <span aria-hidden="true">→</span>';
         this.elements.clearMatched.textContent = `${stats.matched || state.matchedCount} / ${stats.total || state.totalTiles}`;
         this.elements.clearTime.textContent = this.formatTime(stats.elapsed || state.elapsed);
         this.elements.clearScore.textContent = this.formatScore(state.score);

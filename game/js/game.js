@@ -2,8 +2,11 @@
   "use strict";
 
   class StarStackGame extends EventTarget {
-    constructor(levels, options) {
+    constructor(levelSource, options) {
       super();
+      const isCatalog = levelSource && !Array.isArray(levelSource) &&
+        Array.isArray(levelSource.list) && typeof levelSource.getLevel === "function";
+      const levels = isCatalog ? levelSource.list : levelSource;
       if (!Array.isArray(levels) || levels.length === 0) {
         throw new Error("StarStackGame 至少需要一个有效关卡。");
       }
@@ -11,9 +14,21 @@
         throw new Error("棋盘引擎未载入。");
       }
 
+      this.levelSource = levelSource;
       this.levels = levels;
+      this.isInfinite = Boolean(isCatalog && levelSource.infinite);
+      this.totalLevels = this.isInfinite ? Infinity : levels.length;
+      this.praiseMessages = isCatalog && Array.isArray(levelSource.praiseMessages)
+        ? levelSource.praiseMessages.slice()
+        : ["太棒了！所有小动物都回家啦。"];
+      this.resolveLevel = (index) => {
+        if (this.isInfinite && typeof this.levelSource.getLevel === "function") {
+          return this.levelSource.getLevel(index);
+        }
+        return this.levels[index] || null;
+      };
       this.audio = options && options.audio ? options.audio : null;
-      this.level = levels[0];
+      this.level = this.resolveLevel(0);
       this.levelIndex = 0;
       this.status = "idle";
       this.score = 0;
@@ -30,6 +45,7 @@
       this.pendingFail = null;
       this.levelStartScore = 0;
       this.lastLevelStats = null;
+      this.lastPraise = "";
       this.failureReason = "";
       this.rng = global.StarStackBoard.createRng(this.level.seed);
       this.lastClock = performance.now();
@@ -76,6 +92,7 @@
       this.score = 0;
       this.levelIndex = 0;
       this.lastLevelStats = null;
+      this.lastPraise = "";
       this.failureReason = "";
       this.loadLevel(0);
     }
@@ -90,7 +107,7 @@
       this.clearPendingTimers();
       this.status = "idle";
       this.levelIndex = 0;
-      this.level = this.levels[0];
+      this.level = this.resolveLevel(0);
       this.tiles = [];
       this.tray = [];
       this.matchedCount = 0;
@@ -105,14 +122,14 @@
     }
 
     loadLevel(index) {
-      if (!Number.isInteger(index) || index < 0 || index >= this.levels.length) {
+      const level = this.resolveLevel(index);
+      if (!Number.isInteger(index) || index < 0 || !level) {
         this.status = "victory";
         this.emitState();
         return;
       }
 
       this.clearPendingTimers();
-      const level = this.levels[index];
       const board = global.StarStackBoard.generateBoard(level);
       this.level = level;
       this.levelIndex = index;
@@ -128,6 +145,7 @@
       this.failureReason = "";
       this.tools = { ...level.tools };
       this.levelStartScore = this.score;
+      this.lastPraise = "";
       this.rng = global.StarStackBoard.createRng(level.seed + index * 7919 + Date.now() % 10000);
       this.lastClock = performance.now();
       this.status = "playing";
@@ -136,7 +154,8 @@
       this.emit("levelstart", {
         level,
         levelIndex: index,
-        totalLevels: this.levels.length,
+        totalLevels: this.totalLevels,
+        isInfinite: this.isInfinite,
       });
       this.emitBoard({ type: "level" });
       this.emitHud(true);
@@ -328,10 +347,19 @@
       this.emitState();
     }
 
+    pickPraise() {
+      const messages = this.praiseMessages.length > 0
+        ? this.praiseMessages
+        : ["太棒了！所有小动物都回家啦。"];
+      const seed = (this.levelIndex + 1) * 37 + this.matchedCount + this.score;
+      return messages[Math.abs(seed) % messages.length];
+    }
+
     completeLevel() {
       if (this.status !== "playing") return;
       const toolBonus = (this.tools.undo + this.tools.shuffle + this.tools.hint) * 100;
       this.score += toolBonus;
+      this.lastPraise = this.pickPraise();
       this.lastLevelStats = {
         levelName: this.level.name,
         matched: this.matchedCount,
@@ -339,10 +367,11 @@
         score: this.score,
         elapsed: this.elapsed,
         toolBonus,
+        praise: this.lastPraise,
       };
       this.saveBestScore();
 
-      if (this.levelIndex >= this.levels.length - 1) {
+      if (!this.isInfinite && !this.resolveLevel(this.levelIndex + 1)) {
         this.status = "victory";
         this.audio && this.audio.play("victory");
       } else {
@@ -355,7 +384,8 @@
 
     continueRun() {
       if (this.status !== "levelClear") return;
-      if (this.levelIndex + 1 >= this.levels.length) {
+      const nextLevel = this.resolveLevel(this.levelIndex + 1);
+      if (!nextLevel) {
         this.status = "victory";
         this.emitState();
         return;
@@ -384,7 +414,8 @@
         score: this.score,
         best: this.best,
         levelIndex: this.levelIndex,
-        totalLevels: this.levels.length,
+        totalLevels: this.totalLevels,
+        isInfinite: this.isInfinite,
         levelName: this.level.name,
         levelSubtitle: this.level.subtitle,
         matchedCount: this.matchedCount,
@@ -398,7 +429,8 @@
         interactionLocked: this.matchLock,
         failureReason: this.failureReason,
         lastLevelStats: this.lastLevelStats,
-        nextLevel: this.levelIndex + 1 < this.levels.length ? this.levels[this.levelIndex + 1] : null,
+        praise: this.lastPraise,
+        nextLevel: this.resolveLevel(this.levelIndex + 1),
       };
     }
 
